@@ -1,0 +1,1 @@
+../../scripts/ubuntu/install_vagrant_keys.sh

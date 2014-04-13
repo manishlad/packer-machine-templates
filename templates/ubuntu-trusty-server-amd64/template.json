@@ -1,0 +1,49 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "guest_os_type": "Ubuntu_64",
+    "vm_name": "packer-ubuntu-trusty-amd64",
+    "iso_url": "http://releases.ubuntu.com/14.04/ubuntu-14.04-beta2-server-amd64.iso",
+    "iso_checksum": "435d1e7d8425ec7332ceaeb0d7f04664",
+    "iso_checksum_type": "md5",
+    "headless": true,
+    "disk_size": 50000,
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'vagrant'|sudo -S sh 'shutdown.sh'",
+    "http_directory": ".",
+    "boot_command": [
+      "<esc><esc><enter><wait>",
+      "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+      "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+      "hostname={{ .Name }} ",
+      "fb=false debconf/frontend=noninteractive ",
+      "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+      "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+      "initrd=/install/initrd.gz -- <enter>"
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "enable_sudo_for_admin_group.sh",
+        "install_virtualbox_guest_additions.sh",
+        "dist-upgrade.sh"
+      ],
+      "execute_command": "echo 'vagrant' | sudo -S bash '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "install_vagrant_keys.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "packer-ubuntu-trusty-amd64.box"
+    }
+  ]
+}
